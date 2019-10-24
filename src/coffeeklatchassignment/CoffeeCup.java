@@ -232,11 +232,11 @@ public class CoffeeCup {
     @advanced
     public boolean drink() {
         if (this.litres > 0) {
-            System.out.println("You glug the coffee down.");
+            System.out.println(ANSI.FG_DARK_GREEN + "You glug the coffee in " + this.getName() + " down." + ANSI.RESET);
             this.litres = 0;
             return true;
         } else {
-            System.out.println("You sip furiously, but only suck air.");
+            System.out.println(ANSI.FG_RED + "You sip " + this.getName() + " furiously, but only suck air." + ANSI.RESET);
             return false;
         }
 

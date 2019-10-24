@@ -7,6 +7,7 @@ package coffeeklatchassignment;
 
 import coffeeklatchassignment.Other.Beans;
 import coffeeklatchassignment.Other.advanced;
+import java.text.DecimalFormat;
 
 /**
  *
@@ -29,6 +30,8 @@ public class CoffeeMachine {
     private boolean ground = false;
     private boolean autoFill = false;
 
+    private static DecimalFormat df = new DecimalFormat("0.##");
+
     /**
      * Set the strength of the Coffee to s; affects the fineness of the grind.
      * "Weak", "Regular", "Strong" are the usual options for s, but you can try
@@ -40,15 +43,15 @@ public class CoffeeMachine {
         strength = s;
     }
 
-    public String getStrength(){
+    public String getStrength() {
         final StringBuilder sb = new StringBuilder(this.strength);
-        if(this.strengthModifier != 0){
-            if(this.strengthModifier < 0){
-                for(int i = 0; i < Math.abs(this.strengthModifier); i++){
+        if (this.strengthModifier != 0) {
+            if (this.strengthModifier < 0) {
+                for (int i = 0; i < Math.abs(this.strengthModifier); i++) {
                     sb.append('-');
                 }
             } else {
-                for(int i = 0; i < this.strengthModifier; i++){
+                for (int i = 0; i < this.strengthModifier; i++) {
                     sb.append('+');
                 }
             }
@@ -61,7 +64,7 @@ public class CoffeeMachine {
      */
     @advanced
     public void grindBeans() {
-        if(ground == true) {
+        if (ground == true) {
             System.out.println(ANSI.FG_RED + "You've already ground the beans!" + ANSI.RESET);
             return;
         }
@@ -73,7 +76,7 @@ public class CoffeeMachine {
         }
     }
 
-    public boolean isGround(){
+    public boolean isGround() {
         return this.ground;
     }
 
@@ -84,7 +87,7 @@ public class CoffeeMachine {
      */
     public void brew(CoffeeCup c) {
         boolean valid = true;
-        if(c == null){
+        if (c == null) {
             System.out.println(ANSI.FG_RED + "There is no cup!" + ANSI.RESET);
             valid = false;
         }
@@ -101,11 +104,11 @@ public class CoffeeMachine {
             valid = false;
         }
 
-        if (valid){
+        if (valid) {
             System.out.println(ANSI.FG_DARK_GREEN + "Brewing " + strength + " coffee into coffee cup " + ANSI.FAINT + c.getName() + ANSI.RESET + ANSI.FG_DARK_GREEN + "." + ANSI.RESET);
             volume = c.fill(this.volume);
-            if(this.volume > 0){
-                System.out.println(ANSI.FG_DARK_GREEN + "You have " + this.volume + " litres left." + ANSI.RESET);
+            if (this.volume > 0) {
+                System.out.println(ANSI.FG_DARK_GREEN + "You have " + df.format(this.volume) + " litres left." + ANSI.RESET);
             } else {
                 this.dumpWithoutMessage();
                 System.out.println(ANSI.FG_RED + "You have no more coffee!" + ANSI.RESET);
@@ -119,40 +122,43 @@ public class CoffeeMachine {
     @advanced()
     public void addWater() {
         boolean pre = hasWater();
-        if(this.volume > maxVolume) {
+        if (this.volume > maxVolume) {
             this.volume = maxVolume;
         }
-        if(this.volume == maxVolume) {
+        if (this.volume == maxVolume) {
             System.out.println(ANSI.FG_RED + "The machine is already full!");
         } else {
             this.volume = maxVolume;
-            if(pre) {
+            if (pre) {
                 strengthModifier--;
             }
             System.out.println(ANSI.FG_DARK_GREEN + "Added Water" + ANSI.RESET);
         }
     }
 
-    public boolean hasWater(){
+    public boolean hasWater() {
         return this.volume > 0;
     }
-    public double getWater(){
+
+    public double getWater() {
         return this.volume;
     }
 
     /**
-     * Dumps the pot to remove all water, coffee, and beans, resetting it to as if it had not been used.
+     * Dumps the pot to remove all water, coffee, and beans, resetting it to as
+     * if it had not been used.
      */
     @advanced
-    public void dump(){
+    public void dump() {
         dumpWithoutMessage();
         System.out.println(ANSI.FG_DARK_GREEN + "Dumped the coffee" + ANSI.RESET);
     }
 
     /**
-     * Dumps the pot to remove all water, coffee, and beans, resetting it to as if it had not been used.
+     * Dumps the pot to remove all water, coffee, and beans, resetting it to as
+     * if it had not been used.
      */
-    public void dumpWithoutMessage(){
+    public void dumpWithoutMessage() {
         this.volume = 0;
         this.beanCount = 0;
         this.autoFill = false;
@@ -165,7 +171,7 @@ public class CoffeeMachine {
      */
     public void addBeans() {
         System.out.println(ANSI.FG_DARK_GREEN + "Added " + beanType.getName() + " Beans." + ANSI.RESET);
-        if(hasBeans()) {
+        if (hasBeans()) {
             strengthModifier++;
         }
         autoFill = true;
@@ -218,10 +224,11 @@ public class CoffeeMachine {
 
     /**
      * Sets the maximum capacity of this coffee machine.
+     *
      * @param litres
      */
     @advanced(messages = {"Enter maximum capacity in litres: "})
-    public void setCapacity(double litres){
+    public void setCapacity(double litres) {
         this.maxVolume = litres;
     }
 }
