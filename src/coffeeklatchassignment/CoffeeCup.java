@@ -14,7 +14,7 @@ public class CoffeeCup {
      * Stores a Map of all CoffeeCups, indexed by their name.
      */
     private static ArrayList<CoffeeCup> allCups = new ArrayList<>();
-    
+
     private double litres; // How full is this cup?
     private Sizes size; // What size is this cup?
     private String name; // Who owns this cup?
@@ -59,7 +59,7 @@ public class CoffeeCup {
      * {@link coffeeklatchassignment.Other.Sizes}, case-insensitive.
      */
     public CoffeeCup(String name, String size) {
-        
+
         init();
     }
 
@@ -83,6 +83,10 @@ public class CoffeeCup {
         this.name = name;
         this.size = Sizes.MEDIUM;
         init();
+    }
+
+    public CoffeeCup(double size){
+        
     }
 
     /**
@@ -110,7 +114,7 @@ public class CoffeeCup {
         }
         allCups.add(this);
     }
-    
+
     public boolean listContainsName(String name){
         for(CoffeeCup cc : allCups){
             if(cc.getName().equals(name)){
@@ -119,7 +123,7 @@ public class CoffeeCup {
         }
         return false;
     }
-    
+
     public static CoffeeCup getCupFromName(String name){
         for(CoffeeCup cc : allCups){
             if(cc.getName().equals(name)){
@@ -128,7 +132,7 @@ public class CoffeeCup {
         }
         return null;
     }
-    
+
     /**
      * Returns the volume remaining in this drink
      *

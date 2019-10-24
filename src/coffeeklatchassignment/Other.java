@@ -54,14 +54,14 @@ public class Other {
      * Cup sizes.
      */
     public enum Sizes {
-
         SMALL(0.15),
         MEDIUM(0.30),
         LARGE(0.50),
         THIS_IS_TOO_MUCH(0.80),
         PLEASE_NO_MORE(1.00),
         YOU_NEED_TO_STOP(1.50),
-        YOU_HAVE_A_PROBLEM(2.00);
+        YOU_HAVE_A_PROBLEM(2.00),
+        INFINITE(Double.POSITIVE_INFINITY);
 
         Sizes(double volume) {
             this.volume = volume;
@@ -79,16 +79,18 @@ public class Other {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
+    @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
     public @interface advanced {
 
         String[] messages() default {};
     }
 
     /**
-     * Capitalizes each word as defined by a delimiter in a String.
-     * Note: This will preserve case, such that <span style="color: green">ThIs is SOme tEXt</span>
+     * Capitalizes each word as defined by a delimiter in a String. <br><b>Note:</b> This
+     * will preserve case, such that <span style="color: green">thIs is SOme
+     * tEXt</span>
      * will become <span style="color: green">ThIs Is SOme TEXt</span>
+     *
      * @param in String to capitalize
      * @param delimiter Delimiter to separate words
      * @return Capitalized String
@@ -99,9 +101,17 @@ public class Other {
             return StringUtils.capitalize(e);
         }).collect(Collectors.joining(" "));
     }
-    
+
+    public static String center(Object text, int len) {
+        String out = String.format("%" + len + "s%s%" + len + "s", "", text, "");
+        float mid = (out.length() / 2);
+        float start = mid - (len / 2);
+        float end = start + len;
+        return out.substring((int) start, (int) end);
+    }
     //Too lazy to write the method myself since I have to do a bit of research, so the following is code by Ben-Hur Langoni Junior on stackoverflow. See https://stackoverflow.com/questions/12967896/converting-integers-to-roman-numerals-java.
     private final static TreeMap<Integer, String> map = new TreeMap<Integer, String>();
+
     static {
 
         map.put(1000, "M");
@@ -119,11 +129,12 @@ public class Other {
         map.put(1, "I");
 
     }
+
     public final static String toRoman(int number) {
-        int l =  map.floorKey(number);
-        if ( number == l ) {
+        int l = map.floorKey(number);
+        if (number == l) {
             return map.get(number);
         }
-        return map.get(l) + toRoman(number-l);
+        return map.get(l) + toRoman(number - l);
     }
 }

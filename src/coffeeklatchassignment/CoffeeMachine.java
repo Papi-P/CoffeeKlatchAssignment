@@ -16,9 +16,8 @@ import coffeeklatchassignment.Other.advanced;
 public class CoffeeMachine {
 
     // The strength of the coffee.
-    private String strength = "Killer Intense";
-    private double caffieneContentInMg = 0;
-
+    private String strength = "Regular";
+    private int strengthModifier = 0;
     //keep track of how much volume is left in litres.
     private double maxVolume = 2.0;
     private double volume = 0.0;
@@ -40,21 +39,41 @@ public class CoffeeMachine {
         strength = s;
     }
 
+    public String getStrength(){
+        String output = this.strength;
+        if(this.strengthModifier != 0){
+            if(this.strengthModifier < 0){
+                for(int i = 0; i < Math.abs(this.strengthModifier); i++){
+                    output += "-";
+                }
+            } else {
+                for(int i = 0; i < this.strengthModifier; i++){
+                    output += "+";
+                }
+            }
+        }
+        return output;
+    }
+
     /**
      * Grind the beans for the coffee
      */
     @advanced
     public void grindBeans() {
         if(ground == true) {
-            System.out.println("You've already ground the beans!");
+            System.out.println(ANSI.FG_RED + "You've already ground the beans!" + ANSI.RESET);
             return;
         }
         if (hasBeans()) {
-            System.out.println("Grinding beans for " + strength + " coffee.");
+            System.out.println(ANSI.FG_DARK_GREEN + "Grinding beans for " + strength + " coffee." + ANSI.RESET);
             this.ground = true;
         } else {
-            System.out.println("There are no beans to grind!");
+            System.out.println(ANSI.FG_RED + "There are no beans to grind!" + ANSI.RESET);
         }
+    }
+
+    public boolean isGround(){
+        return this.ground;
     }
 
     /**
@@ -65,30 +84,30 @@ public class CoffeeMachine {
     public void brew(CoffeeCup c) {
         boolean valid = true;
         if(c == null){
-            System.out.println(ANSI.FG_RED + "There is no cup!");
+            System.out.println(ANSI.FG_RED + "There is no cup!" + ANSI.RESET);
             valid = false;
         }
         if (this.volume <= 0) {
-            System.out.println(ANSI.FG_RED + "You forgot to add water!");
+            System.out.println(ANSI.FG_RED + "You forgot to add water!" + ANSI.RESET);
             valid = false;
         }
 
         if (!hasBeans()) {
-            System.out.println(ANSI.FG_RED + "You forgot to add the beans!");
+            System.out.println(ANSI.FG_RED + "You forgot to add beans!" + ANSI.RESET);
             valid = false;
         } else if (!this.ground) {
-            System.out.println(ANSI.FG_RED + "You forgot to grind the beans!");
+            System.out.println(ANSI.FG_RED + "You forgot to grind the beans!" + ANSI.RESET);
             valid = false;
         }
 
         if (valid) {
-            System.out.println(ANSI.FG_DARK_GREEN + "Brewing " + strength + " coffee.");
+            System.out.println(ANSI.FG_DARK_GREEN + "Brewing " + strength + " coffee." + ANSI.RESET);
             volume = c.fill(this.volume);
             if(this.volume > 0){
                 System.out.println("You have " + this.volume + " litres left.");
             } else {
                 this.dumpWithoutMessage();
-                System.out.println(ANSI.FG_RED + "You have no more coffee!");
+                System.out.println(ANSI.FG_RED + "You have no more coffee!" + ANSI.RESET);
             }
         }
     }
@@ -98,8 +117,26 @@ public class CoffeeMachine {
      */
     @advanced()
     public void addWater() {
-        this.volume = maxVolume;
-        System.out.println("Added Water");
+        boolean pre = hasWater();
+        if(this.volume > maxVolume) {
+            this.volume = maxVolume;
+        }
+        if(this.volume == maxVolume) {
+            System.out.println(ANSI.FG_RED + "The machine is already full!");
+        } else {
+            this.volume = maxVolume;
+            if(pre) {
+                strengthModifier--;
+            }
+            System.out.println(ANSI.FG_DARK_GREEN + "Added Water" + ANSI.RESET);
+        }
+    }
+
+    public boolean hasWater(){
+        return this.volume > 0;
+    }
+    public double getWater(){
+        return this.volume;
     }
 
     /**
@@ -110,13 +147,17 @@ public class CoffeeMachine {
         this.volume = 0;
         this.beanCount = 0;
         this.autoFill = false;
-        System.out.println("Dumped the coffee");
+        this.strengthModifier = 0;
+        this.ground = false;
+        System.out.println(ANSI.FG_DARK_GREEN + "Dumped the coffee" + ANSI.RESET);
     }
 
     public void dumpWithoutMessage(){
         this.volume = 0;
         this.beanCount = 0;
         this.autoFill = false;
+        this.strengthModifier = 0;
+        this.ground = false;
     }
 
     /**
@@ -124,7 +165,10 @@ public class CoffeeMachine {
      */
 
     public void addBeans() {
-        System.out.println("Adding " + beanType.getName() + " Beans");
+        System.out.println(ANSI.FG_DARK_GREEN + "Added " + beanType.getName() + " Beans." + ANSI.RESET);
+        if(hasBeans()) {
+            strengthModifier++;
+        }
         autoFill = true;
         ground = false;
     }
@@ -138,17 +182,17 @@ public class CoffeeMachine {
     public void addBeans(long count) {
         autoFill = false;
         if (count < 0) {
-            System.out.println("You can't remove beans!");
+            System.out.println(ANSI.FG_RED + "You can't remove beans!" + ANSI.RESET);
             return;
         }
-        if (beanType.getContent() * count + this.caffieneContentInMg < 5000) {
+        if (beanType.getContent() * count < 5000) {
             if (count == 0) {
-                System.out.println(ANSI.FG_DARK_GREEN + "Did not add any " + beanType.getName() + " beans.");
+                System.out.println(ANSI.FG_DARK_GREEN + "Did not add any " + beanType.getName() + " beans." + ANSI.RESET);
             } else {
-                System.out.println(ANSI.FG_DARK_GREEN + "Adding " + count + " " + beanType.getName() + " Bean" + (count == 1 ? "." : "s."));
+                System.out.println(ANSI.FG_DARK_GREEN + "Adding " + count + " " + beanType.getName() + " Bean" + (count == 1 ? "." : "s.") + ANSI.RESET);
             }
         } else {
-            System.out.println(ANSI.FG_MAGENTA + "You've decided to add more than the lethal dose of caffeine. Please, get some help.");
+            System.out.println(ANSI.BOLD + "You've decided to add more than the lethal dose of caffeine. Please, get some help." + ANSI.RESET);
         }
         beanCount += count;
         if (count > 0) {

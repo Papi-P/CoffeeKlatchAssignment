@@ -24,6 +24,7 @@ public class ANSI {
             FONT_8 = "\u001B[18m",
             FONT_9 = "\u001B[19m",
             DOUBLE_UNDERLINE_BOLD_OFF = "\u001B[21m",
+            FG_BLACK = "\u001B[30m",
             FG_RED = "\u001B[31m",
             FG_GREEN = "\u001B[32m",
             FG_DARK_GREEN = FAINT + "\u001B[32m",
