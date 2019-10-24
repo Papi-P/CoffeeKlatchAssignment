@@ -18,6 +18,7 @@ public class CoffeeMachine {
     // The strength of the coffee.
     private String strength = "Regular";
     private int strengthModifier = 0;
+
     //keep track of how much volume is left in litres.
     private double maxVolume = 2.0;
     private double volume = 0.0;
@@ -40,19 +41,19 @@ public class CoffeeMachine {
     }
 
     public String getStrength(){
-        String output = this.strength;
+        final StringBuilder sb = new StringBuilder(this.strength);
         if(this.strengthModifier != 0){
             if(this.strengthModifier < 0){
                 for(int i = 0; i < Math.abs(this.strengthModifier); i++){
-                    output += "-";
+                    sb.append('-');
                 }
             } else {
                 for(int i = 0; i < this.strengthModifier; i++){
-                    output += "+";
+                    sb.append('+');
                 }
             }
         }
-        return output;
+        return sb.toString();
     }
 
     /**
@@ -100,11 +101,11 @@ public class CoffeeMachine {
             valid = false;
         }
 
-        if (valid) {
-            System.out.println(ANSI.FG_DARK_GREEN + "Brewing " + strength + " coffee." + ANSI.RESET);
+        if (valid){
+            System.out.println(ANSI.FG_DARK_GREEN + "Brewing " + strength + " coffee into coffee cup " + ANSI.FAINT + c.getName() + ANSI.RESET + ANSI.FG_DARK_GREEN + "." + ANSI.RESET);
             volume = c.fill(this.volume);
             if(this.volume > 0){
-                System.out.println("You have " + this.volume + " litres left.");
+                System.out.println(ANSI.FG_DARK_GREEN + "You have " + this.volume + " litres left." + ANSI.RESET);
             } else {
                 this.dumpWithoutMessage();
                 System.out.println(ANSI.FG_RED + "You have no more coffee!" + ANSI.RESET);
@@ -140,18 +141,17 @@ public class CoffeeMachine {
     }
 
     /**
-     * Dumps the pot to remove all water, coffee, and beans.
+     * Dumps the pot to remove all water, coffee, and beans, resetting it to as if it had not been used.
      */
     @advanced
     public void dump(){
-        this.volume = 0;
-        this.beanCount = 0;
-        this.autoFill = false;
-        this.strengthModifier = 0;
-        this.ground = false;
+        dumpWithoutMessage();
         System.out.println(ANSI.FG_DARK_GREEN + "Dumped the coffee" + ANSI.RESET);
     }
 
+    /**
+     * Dumps the pot to remove all water, coffee, and beans, resetting it to as if it had not been used.
+     */
     public void dumpWithoutMessage(){
         this.volume = 0;
         this.beanCount = 0;
@@ -163,7 +163,6 @@ public class CoffeeMachine {
     /**
      * Add Beans to the Machine
      */
-
     public void addBeans() {
         System.out.println(ANSI.FG_DARK_GREEN + "Added " + beanType.getName() + " Beans." + ANSI.RESET);
         if(hasBeans()) {
@@ -180,12 +179,13 @@ public class CoffeeMachine {
      */
     @advanced(messages = {"How many beans to add: "})
     public void addBeans(long count) {
+        //turn off autofill since the user now determined how many beans to add.
         autoFill = false;
+
+        //prevent the user from adding a negative value.
         if (count < 0) {
             System.out.println(ANSI.FG_RED + "You can't remove beans!" + ANSI.RESET);
-            return;
-        }
-        if (beanType.getContent() * count < 5000) {
+        } else if (beanType.getContent() * count < 5000) {
             if (count == 0) {
                 System.out.println(ANSI.FG_DARK_GREEN + "Did not add any " + beanType.getName() + " beans." + ANSI.RESET);
             } else {
@@ -200,14 +200,26 @@ public class CoffeeMachine {
         }
     }
 
+    /**
+     *
+     * @return true if this has more than 0 beans, or autofill is enabled.
+     */
     public boolean hasBeans() {
         return this.beanCount > 0 || this.autoFill;
     }
 
+    /**
+     *
+     * @param beanType
+     */
     public void setBeanType(Beans beanType) {
         this.beanType = beanType;
     }
 
+    /**
+     * Sets the maximum capacity of this coffee machine.
+     * @param litres
+     */
     @advanced(messages = {"Enter maximum capacity in litres: "})
     public void setCapacity(double litres){
         this.maxVolume = litres;

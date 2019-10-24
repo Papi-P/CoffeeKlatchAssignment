@@ -2,6 +2,7 @@ package coffeeklatchassignment;
 
 import coffeeklatchassignment.Other.Sizes;
 import coffeeklatchassignment.Other.advanced;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -10,14 +11,20 @@ import java.util.ArrayList;
  * @author Daniel Allen
  */
 public class CoffeeCup {
+
     /**
      * Stores a Map of all CoffeeCups, indexed by their name.
      */
     private static ArrayList<CoffeeCup> allCups = new ArrayList<>();
 
+    /**
+     * Formats numbers printed, mainly to replace "Infinity" with "∞" but also to round numbers to 2 (or fewer) decimal places.
+     */
+    private static DecimalFormat df = new DecimalFormat("0.##");
+
     private double litres; // How full is this cup?
-    private Sizes size; // What size is this cup?
-    private String name; // Who owns this cup?
+    private final Sizes size; // What size is this cup?
+    private String name; // Who's cup is this?
 
     /**
      * Creates a CoffeeCup with a name and size. Sizes:
@@ -29,6 +36,7 @@ public class CoffeeCup {
      * <li>Please no more</li>
      * <li>You need to stop</li>
      * <li>You have a problem</li>
+     * <li>Infinite</li>
      * </ol>
      *
      * @param name Name to put on the cup
@@ -52,6 +60,7 @@ public class CoffeeCup {
      * <li>Please no more</li>
      * <li>You need to stop</li>
      * <li>You have a problem</li>
+     * <li>Infinite</li>
      * </ol>
      *
      * @param name Name to put on the cup
@@ -59,12 +68,14 @@ public class CoffeeCup {
      * {@link coffeeklatchassignment.Other.Sizes}, case-insensitive.
      */
     public CoffeeCup(String name, String size) {
-
+        this.name = name;
+        this.size = Sizes.valueOf(size);
         init();
     }
 
     /**
      * Creates a CoffeeCup with a name and size.
+     *
      * @param name Name to put on the cup
      * @param size Size of cup. Size must be from
      * {@link coffeeklatchassignment.Other.Sizes}.
@@ -77,16 +88,13 @@ public class CoffeeCup {
 
     /**
      * Creates a medium-sized CoffeeCup with a name.
+     *
      * @param name Name to put on the cup
      */
     public CoffeeCup(String name) {
         this.name = name;
         this.size = Sizes.MEDIUM;
         init();
-    }
-
-    public CoffeeCup(double size){
-        
     }
 
     /**
@@ -98,14 +106,18 @@ public class CoffeeCup {
         init();
     }
 
-    private void init(){
+    /**
+     * Initializes the cup. This modifies the name to prevent multiple users
+     * from using the same one.
+     */
+    private void init() {
         //keep track of if the name is unique, the current index of an iteration, and the original name of this cup.
         boolean isUnique = false;
         int index = 1;
         String originalName = this.getName();
-        while(!isUnique){
-            //if the list contains the current name, set the current name to the original name subceeded by "the " and the index as a roman numeral, and repeat. If not, end the loop and add the cup.
-            if(listContainsName(this.getName())){
+        while (!isUnique) {
+            //if the list contains the current name, set the current name to the original name succeeded by "the " and the index as a roman numeral, and repeat. If not, end the loop and add the cup.
+            if (listContainsName(this.getName())) {
                 index++;
                 this.name = originalName + " the " + Other.toRoman(index);
             } else {
@@ -115,18 +127,31 @@ public class CoffeeCup {
         allCups.add(this);
     }
 
-    public boolean listContainsName(String name){
-        for(CoffeeCup cc : allCups){
-            if(cc.getName().equals(name)){
+    /**
+     * Check if a cup exists with the given name.
+     *
+     * @param name The name to check for
+     * @return true if a cup has that name.
+     */
+    public boolean listContainsName(String name) {
+        for (CoffeeCup cc : allCups) {
+            if (cc.getName().equals(name)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static CoffeeCup getCupFromName(String name){
-        for(CoffeeCup cc : allCups){
-            if(cc.getName().equals(name)){
+    /**
+     * Gets a cup with a given name.
+     *
+     * @param name The name of the cup
+     * @return the cup with the given name, or <code>null</code> if it doesn't
+     * exist.
+     */
+    public static CoffeeCup getCupFromName(String name) {
+        for (CoffeeCup cc : allCups) {
+            if (cc.getName().equals(name)) {
                 return cc;
             }
         }
@@ -156,13 +181,13 @@ public class CoffeeCup {
      * {@link coffeeklatchassignment.CoffeeCup#fill(double)} instead, unless you
      * want to magically fill the cup and not worry about the amount.
      *
-     *
      */
     @advanced
     public void fill() {
         this.litres = this.size.getVolume();
-        System.out.println("You've filled the cup to " + this.litres + "L!");
+        System.out.println("You've filled the cup to " + df.format(this.litres) + "L!");
     }
+
 
     /**
      * Fill this cup either to the top or until the amount provided is empty and
@@ -188,11 +213,11 @@ public class CoffeeCup {
             double difference = maxVolume - curVolume;
             if (amount >= difference) {
                 this.litres = maxVolume;
-                System.out.println("You've filled the cup to " + this.litres + "L!");
+                System.out.println("You've filled the cup to " + df.format(this.litres) + "L!");
                 return amount - difference;
             } else {
                 this.litres += amount;
-                System.out.println("You've added " + amount + "L to this cup. You need another " + (this.size.getVolume() - this.litres) + "L to fill it.");
+                System.out.println("You've added " + df.format(amount) + "L to this cup. You need another " + df.format(this.size.getVolume() - this.litres) + "L to fill it.");
                 return 0;
             }
         }
@@ -217,6 +242,10 @@ public class CoffeeCup {
 
     }
 
+    /**
+     * Returns the size of this cup.
+     * @return the size of this cup from {@link coffeeklatchassignment.Other.Sizes}
+     */
     public Sizes getSize() {
         return this.size;
     }

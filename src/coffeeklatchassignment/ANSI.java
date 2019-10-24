@@ -5,6 +5,9 @@ package coffeeklatchassignment;
     17-Oct-2019
  */
 public class ANSI {
+    /**
+     * ANSI formatting codes. Used to stylize the terminal.
+     */
     public final static String
             RESET = "\u001B[0m",
             BOLD = "\u001B[1m",

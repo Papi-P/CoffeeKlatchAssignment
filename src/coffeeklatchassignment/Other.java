@@ -54,6 +54,7 @@ public class Other {
      * Cup sizes.
      */
     public enum Sizes {
+
         SMALL(0.15),
         MEDIUM(0.30),
         LARGE(0.50),
@@ -86,9 +87,9 @@ public class Other {
     }
 
     /**
-     * Capitalizes each word as defined by a delimiter in a String. <br><b>Note:</b> This
-     * will preserve case, such that <span style="color: green">thIs is SOme
-     * tEXt</span>
+     * Capitalizes each word as defined by a delimiter in a String.
+     * <br><b>Note:</b> This will preserve case, such that
+     * <span style="color: green">thIs is SOme tEXt</span>
      * will become <span style="color: green">ThIs Is SOme TEXt</span>
      *
      * @param in String to capitalize
@@ -102,13 +103,7 @@ public class Other {
         }).collect(Collectors.joining(" "));
     }
 
-    public static String center(Object text, int len) {
-        String out = String.format("%" + len + "s%s%" + len + "s", "", text, "");
-        float mid = (out.length() / 2);
-        float start = mid - (len / 2);
-        float end = start + len;
-        return out.substring((int) start, (int) end);
-    }
+    
     //Too lazy to write the method myself since I have to do a bit of research, so the following is code by Ben-Hur Langoni Junior on stackoverflow. See https://stackoverflow.com/questions/12967896/converting-integers-to-roman-numerals-java.
     private final static TreeMap<Integer, String> map = new TreeMap<Integer, String>();
 
@@ -136,5 +131,20 @@ public class Other {
             return map.get(number);
         }
         return map.get(l) + toRoman(number - l);
+    }
+    
+    public static String center(String str, int size){
+        if(str == null || size <= 0 || size < str.length()){
+            return str;
+        }
+        final StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < (size-str.length())/2; i++){
+            sb.append(' ');
+        }
+        sb.append(str);
+        for(int i = 0; i < (size - str.length())/2; i++){
+            sb.append(' ');
+        }
+        return sb.toString();
     }
 }

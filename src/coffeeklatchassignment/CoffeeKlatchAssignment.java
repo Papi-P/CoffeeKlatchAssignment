@@ -1,9 +1,6 @@
 package coffeeklatchassignment;
 
-import coffeeklatchassignment.Other.Beans;
-import coffeeklatchassignment.Other.Sizes;
-import coffeeklatchassignment.Other.advanced;
-import static coffeeklatchassignment.Other.center;
+import static coffeeklatchassignment.Other.*;
 import java.util.Scanner;
 import static coffeeklatchassignment.Verification.*;
 import java.io.File;
@@ -78,21 +75,33 @@ public class CoffeeKlatchAssignment {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        //define the CoffeeCup and CoffeeMachine
         coffeemachine = new CoffeeMachine();
         CoffeeCup cup = new CoffeeCup();
 
+        //keep track of whether to exit the program or not
         boolean exit = false;
-        DecimalFormat toTwoDecimals = new DecimalFormat("0.00");
+
+        //store decimalformats
+        DecimalFormat twoDecimals = new DecimalFormat("0.00");
+        DecimalFormat oneDecimal = new DecimalFormat("0.0");
         DecimalFormat noDecimals = new DecimalFormat("0");
+
+        //loop until a user powers off the machine
         while (!exit) {
+            //get the user's name
             System.out.println(ANSI.FG_BLUE + "What's your name?" + ANSI.RESET);
             String name = scan.nextLine();
             System.out.println(ANSI.FG_DARK_GREEN + "Welcome, " + name + ANSI.RESET);
+
+            //ask what strength of coffee the user wants.
+
+
             //display the cup sizes
             System.out.println("\n-------------------------------------------------");
             System.out.println("|                     Sizes                     |");
             for (int i = 0; i < Sizes.values().length; i++) {
-                System.out.format("|     "+(i+1)+": %1$-26s%2$8s     |%n", Sizes.values()[i], noDecimals.format(Sizes.values()[i].getVolume()*1000)+"mL");
+                System.out.format("|     " + (i + 1) + ": %1$-26s%2$8s     |%n", Sizes.values()[i], noDecimals.format(Sizes.values()[i].getVolume() * 1000) + "mL");
             }
             System.out.println("-------------------------------------------------");
 
@@ -100,7 +109,7 @@ public class CoffeeKlatchAssignment {
             System.out.println(ANSI.RESET + "\n" + ANSI.FG_BLUE + "What size of cup would you like?" + ANSI.RESET);
             boolean valid = false;
             while (!valid) {
-                int size = (int)getValidatedNumber("Enter a size: ", false, false, false);
+                int size = (int) getValidatedNumber("Enter a size: ", false, false, false);
                 if (size < 1 || size > Sizes.values().length) {
                     valid = false;
                     System.out.println(ANSI.FG_RED + "Unknown size. Please select one from the list above." + ANSI.RESET);
@@ -110,15 +119,14 @@ public class CoffeeKlatchAssignment {
                     valid = true;
                 }
             }
-            boolean hasCustomer = true;
+            //keep track of if a user is logged in
+            boolean hasUser = true;
 
-            while (hasCustomer) {
+            while (hasUser) {
                 System.out.println("-------------------------------------------------");
                 String format = "%1$-10s%2$-10s%3$-10s%4$-10s%5$-10s\n";
                 System.out.println("Cup Size: " + cup.getSize());
                 //<editor-fold defaultstate="collapsed" desc="Header Labels for Coffee Machine Data">
-                String toPrint = "";
-                int position = 0;
                 String nameLabel = "Name",
                         hasBeanLabel = "Beans",
                         isGroundLabel = "Ground",
@@ -126,19 +134,16 @@ public class CoffeeKlatchAssignment {
                         strengthLabel = "Strength";
                 System.out.format(format, center(nameLabel, Math.max(name.length(), 9)), center(hasBeanLabel, 9), center(isGroundLabel, 9), center(waterLabel, 9), center(strengthLabel, Math.max(coffeemachine.getStrength().length(), 9)));
                 //</editor-fold>
-                //reset string and position
-                toPrint = "";
-                position = 0;
                 //<editor-fold defaultstate="collapsed" desc="Body Labels for Coffee Machine Data">
                 String formattedBeans = coffeemachine.hasBeans()
                         ? Symbols.CHECK_MARK
                         : Symbols.X_MARK,
                         formattedGround = coffeemachine.hasBeans()
-                        ? coffeemachine.isGround()
-                        ? Symbols.CHECK_MARK
-                        : Symbols.X_MARK
-                        : "-",
-                        formattedWater = new DecimalFormat("0.0").format(coffeemachine.getWater()) + "L";
+                                ? coffeemachine.isGround()
+                                        ? Symbols.CHECK_MARK
+                                        : Symbols.X_MARK
+                                : "-",
+                        formattedWater = oneDecimal.format(coffeemachine.getWater()) + "L";
                 System.out.format(format,
                         center(name, Math.max(name.length(), 9)),
                         (coffeemachine.hasBeans() ? ANSI.FG_DARK_GREEN : ANSI.FG_RED) + center(formattedBeans, 9) + ANSI.RESET,
@@ -146,6 +151,8 @@ public class CoffeeKlatchAssignment {
                         "  " + (coffeemachine.hasWater() ? ANSI.FG_DARK_GREEN : ANSI.FG_RED) + center(formattedWater, 9) + ANSI.RESET,
                         "  " + center(coffeemachine.getStrength(), Math.max(coffeemachine.getStrength().length(), 9)));
                 //</editor-fold>
+
+                //display the commands
                 System.out.println("-------------------------------------------------");
                 System.out.println("|                    Commands                   |");
                 System.out.println("|   B: Add Beans to Machine                     |");
@@ -181,9 +188,10 @@ public class CoffeeKlatchAssignment {
                     //use reflection to let the user run advanced commands. This is split into a seperate method due to its complexity making it hard to read.
                     useReflection();
                 } else if (command.equalsIgnoreCase("L")) {
-                    hasCustomer = false;
+                    hasUser = false;
+                    System.out.println(ANSI.FG_DARK_GREEN + "Please come again :)" + ANSI.RESET);
                 } else if (command.equalsIgnoreCase("P")) {
-                    hasCustomer = false;
+                    hasUser = false;
                     exit = true;
                 } else {
                     System.out.println(ANSI.FG_RED + "Unknown command. Please select one from the list above." + ANSI.RESET);
@@ -240,11 +248,11 @@ public class CoffeeKlatchAssignment {
                 }
                 String paramMessage = ANSI.FG_BLUE + selected.getAnnotation(advanced.class).messages()[i] + ANSI.RESET;
                 if (paramType.equals(long.class) || paramType.equals(Long.class)) {
-                    params[i] = (long)Verification.getValidatedNumber(paramMessage, false, true, true);
+                    params[i] = (long) Verification.getValidatedNumber(paramMessage, false, true, true);
                 } else if (paramType.equals(double.class) || paramType.equals(Double.class)) {
                     params[i] = Verification.getValidatedNumber(paramMessage, true, true, true);
                 } else if (paramType.equals(int.class) || paramType.equals(Integer.class)) {
-                    params[i] = (int)Verification.getValidatedNumber(paramMessage, true, true, true);
+                    params[i] = (int) Verification.getValidatedNumber(paramMessage, true, true, true);
                 } else if (paramType.equals(boolean.class) || paramType.equals(Boolean.class)) {
                     params[i] = Boolean.parseBoolean(getValidatedBoolean(paramMessage, false));
                 } else if (paramType.equals(String.class)) {
