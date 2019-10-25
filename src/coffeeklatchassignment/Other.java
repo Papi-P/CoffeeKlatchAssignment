@@ -1,6 +1,5 @@
 package coffeeklatchassignment;
 
-import com.sun.xml.internal.ws.util.StringUtils;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -75,7 +74,7 @@ public class Other {
 
         @Override
         public String toString() {
-            return capitalizeFully(this.name().toLowerCase(), "_");
+            return capitalizeFully(this.name().toLowerCase(), "_", " ");
         }
     }
 
@@ -94,47 +93,61 @@ public class Other {
      *
      * @param in String to capitalize
      * @param delimiter Delimiter to separate words
+     * @param joiner String to reconnect words.
      * @return Capitalized String
      */
-    public static String capitalizeFully(String in, String delimiter) {
-        //I don't know where StringUtils.capitalizeFully went so I made this to replace it.
+    public static String capitalizeFully(String in, String delimiter, String joiner) {
+        //create a stream from the input, split it by the delimiter, capitalize each index, then join them using the delimiter.
         return Stream.of(in.split(delimiter)).map((e) -> {
-            return StringUtils.capitalize(e);
-        }).collect(Collectors.joining(" "));
+            return Character.toUpperCase(e.charAt(0)) + e.substring(1);
+        }).collect(Collectors.joining(joiner));
     }
 
-    
-    //Too lazy to write the method myself since I have to do a bit of research, so the following is code by Ben-Hur Langoni Junior on stackoverflow. See https://stackoverflow.com/questions/12967896/converting-integers-to-roman-numerals-java.
-    private final static TreeMap<Integer, String> map = new TreeMap<Integer, String>();
+    //<editor-fold desc="Roman Numerals">
+    //Too lazy to write the method myself since I have to do research on Roman numerals, so the following is code by Ben-Hur Langoni Junior on stackoverflow. See https://stackoverflow.com/questions/12967896/converting-integers-to-roman-numerals-java.
+    private final static TreeMap<Integer, String> numeralMap = new TreeMap<Integer, String>();
 
     static {
 
-        map.put(1000, "M");
-        map.put(900, "CM");
-        map.put(500, "D");
-        map.put(400, "CD");
-        map.put(100, "C");
-        map.put(90, "XC");
-        map.put(50, "L");
-        map.put(40, "XL");
-        map.put(10, "X");
-        map.put(9, "IX");
-        map.put(5, "V");
-        map.put(4, "IV");
-        map.put(1, "I");
+        numeralMap.put(1000, "M");
+        numeralMap.put(900, "CM");
+        numeralMap.put(500, "D");
+        numeralMap.put(400, "CD");
+        numeralMap.put(100, "C");
+        numeralMap.put(90, "XC");
+        numeralMap.put(50, "L");
+        numeralMap.put(40, "XL");
+        numeralMap.put(10, "X");
+        numeralMap.put(9, "IX");
+        numeralMap.put(5, "V");
+        numeralMap.put(4, "IV");
+        numeralMap.put(1, "I");
 
     }
 
+    /**
+     * Converts a number to a Roman numeral
+     * @param number Number to convert
+     * @return A Roman numeral representing the number.
+     */
     public final static String toRoman(int number) {
-        int l = map.floorKey(number);
+        int l = numeralMap.floorKey(number);
         if (number == l) {
-            return map.get(number);
+            return numeralMap.get(number);
         }
-        return map.get(l) + toRoman(number - l);
+        return numeralMap.get(l) + toRoman(number - l);
     }
-    
+    //</editor-fold>
+
+    /**
+     * Adds padding to either side of a String, centering it given a total width for the String to be.
+     * @param str String to center
+     * @param size Final size of the String
+     * @return Centered String
+     */
     public static String center(String str, int size){
-        if(str == null || size <= 0 || size < str.length()){
+        //returns the input if it's null or the size is less than or equal to the input's length
+        if(str == null || size <= str.length()){
             return str;
         }
         final StringBuilder sb = new StringBuilder();

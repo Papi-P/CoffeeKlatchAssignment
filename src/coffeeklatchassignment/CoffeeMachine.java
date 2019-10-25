@@ -24,6 +24,9 @@ public class CoffeeMachine {
     private double maxVolume = 2.0;
     private double volume = 0.0;
 
+    //keep track of whether the coffee is brewed or not.
+    private boolean brewed = false;
+
     //BEANS BEANS BEANS
     private Beans beanType = Beans.ARABICA;
     private int beanCount = 0;
@@ -43,6 +46,11 @@ public class CoffeeMachine {
         strength = s;
     }
 
+    /**
+     * Returns the Strength of this coffee as a String.
+     *
+     * @return the Strength of this coffee.
+     */
     public String getStrength() {
         final StringBuilder sb = new StringBuilder(this.strength);
         if (this.strengthModifier != 0) {
@@ -66,9 +74,7 @@ public class CoffeeMachine {
     public void grindBeans() {
         if (ground == true) {
             System.out.println(ANSI.FG_RED + "You've already ground the beans!" + ANSI.RESET);
-            return;
-        }
-        if (hasBeans()) {
+        } else if (hasBeans()) {
             System.out.println(ANSI.FG_DARK_GREEN + "Grinding beans for " + strength + " coffee." + ANSI.RESET);
             this.ground = true;
         } else {
@@ -76,8 +82,55 @@ public class CoffeeMachine {
         }
     }
 
+    /**
+     * Returns if the beans has been ground yet.
+     *
+     * @return true if it has.
+     */
     public boolean isGround() {
         return this.ground;
+    }
+
+    /**
+     * Returns if the coffee has been brewed yet.
+     *
+     * @return true if it has.
+     */
+    public boolean isBrewed() {
+        return this.brewed;
+    }
+
+    /**
+     * Brews the coffee. Requires that water has been added and the beans have been added and ground.
+     *
+     * @return whether the coffee was successfully brewed or not.
+     */
+    @advanced
+    public boolean brew() {
+        boolean valid = true;
+        if (this.isBrewed()) {
+            System.out.println(ANSI.FG_RED + "The coffee has already been brewed!" + ANSI.RESET);
+            valid = false;
+        } else {
+            if (this.volume <= 0) {
+                System.out.println(ANSI.FG_RED + "You forgot to add water!" + ANSI.RESET);
+                valid = false;
+            }
+
+            if (!hasBeans()) {
+                System.out.println(ANSI.FG_RED + "You forgot to add beans!" + ANSI.RESET);
+                valid = false;
+            } else if (!this.ground) {
+                System.out.println(ANSI.FG_RED + "You forgot to grind the beans!" + ANSI.RESET);
+                valid = false;
+            }
+        }
+
+        if (valid) {
+            System.out.println(ANSI.FG_DARK_GREEN + "Brewing " + strength + " coffee." + ANSI.RESET);
+            this.brewed = true;
+        }
+        return valid;
     }
 
     /**
@@ -85,27 +138,19 @@ public class CoffeeMachine {
      *
      * @param c The cup of coffee to be filled
      */
-    public void brew(CoffeeCup c) {
+    public void pour(CoffeeCup c) {
         boolean valid = true;
         if (c == null) {
             System.out.println(ANSI.FG_RED + "There is no cup!" + ANSI.RESET);
             valid = false;
         }
-        if (this.volume <= 0) {
-            System.out.println(ANSI.FG_RED + "You forgot to add water!" + ANSI.RESET);
-            valid = false;
-        }
-
-        if (!hasBeans()) {
-            System.out.println(ANSI.FG_RED + "You forgot to add beans!" + ANSI.RESET);
-            valid = false;
-        } else if (!this.ground) {
-            System.out.println(ANSI.FG_RED + "You forgot to grind the beans!" + ANSI.RESET);
+        if (!isBrewed()) {
+            System.out.println(ANSI.FG_RED + "You need to brew the coffee before you can pour it!" + ANSI.RESET);
             valid = false;
         }
 
         if (valid) {
-            System.out.println(ANSI.FG_DARK_GREEN + "Brewing " + strength + " coffee into coffee cup " + ANSI.FAINT + c.getName() + ANSI.RESET + ANSI.FG_DARK_GREEN + "." + ANSI.RESET);
+            System.out.println(ANSI.FG_DARK_GREEN + "Pouring " + strength + " coffee into coffee cup " + c.getName() + ANSI.RESET + ANSI.FG_DARK_GREEN + "." + ANSI.RESET);
             volume = c.fill(this.volume);
             if (this.volume > 0) {
                 System.out.println(ANSI.FG_DARK_GREEN + "You have " + df.format(this.volume) + " litres left." + ANSI.RESET);
@@ -136,10 +181,18 @@ public class CoffeeMachine {
         }
     }
 
+    /**
+     * Returns whether this machine has water.
+     * @return true if this machine's volume is over 0;
+     */
     public boolean hasWater() {
         return this.volume > 0;
     }
 
+    /**
+     * Returns the volume of this machine's water.
+     * @return the volume of water in mL.
+     */
     public double getWater() {
         return this.volume;
     }
@@ -164,6 +217,7 @@ public class CoffeeMachine {
         this.autoFill = false;
         this.strengthModifier = 0;
         this.ground = false;
+        this.brewed = false;
     }
 
     /**

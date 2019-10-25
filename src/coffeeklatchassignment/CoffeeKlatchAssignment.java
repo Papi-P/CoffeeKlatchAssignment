@@ -52,7 +52,9 @@ public class CoffeeKlatchAssignment {
     }
     static CoffeeMachine coffeeMachine;
     static CoffeeCup cup;
-    static File logFile = new File((System.getProperty("user.dir") + "log.txt"));
+
+    //create a log file and writer
+    static File logFile = new File((System.getProperty("user.dir") + "\\log.txt"));
     static FileWriter fw = null;
 
     static {
@@ -63,6 +65,10 @@ public class CoffeeKlatchAssignment {
         }
     }
 
+    /**
+     * Outputs text to a log file for debugging purposes.
+     * @param toLog Text to output
+     */
     public static void log(String toLog) {
         try {
             fw.write(toLog);
@@ -71,10 +77,16 @@ public class CoffeeKlatchAssignment {
         }
     }
 
+    //keep track of time for debugging.
+    static long startTime = 0;
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        //load the start time
+        startTime = System.currentTimeMillis();
+
         //define the CoffeeCup and CoffeeMachine
         coffeeMachine = new CoffeeMachine();
         CoffeeCup cup = new CoffeeCup();
@@ -83,15 +95,24 @@ public class CoffeeKlatchAssignment {
         boolean exit = false;
 
         //store decimalformats
-        DecimalFormat twoDecimals = new DecimalFormat("0.00");
+        DecimalFormat df = new DecimalFormat("0.##");
+        DecimalFormat timeFormat = new DecimalFormat("00");
         DecimalFormat oneDecimal = new DecimalFormat("0.0");
         DecimalFormat noDecimals = new DecimalFormat("0");
 
+        //welcome the user
+        System.out.println("***********************************\n"
+                + "*  Willkommen beim Kaffeeklatsch  *\n"
+                + "***********************************");
         //loop until a user powers off the machine
         while (!exit) {
             //get the user's name
             System.out.println(ANSI.FG_BLUE + "What's your name?" + ANSI.RESET);
-            String name = scan.nextLine();
+            String name = scan.nextLine().trim();
+            if (name.isEmpty()) {
+                //if the user's name was empty, replace it with the profile name from the system
+                name = capitalizeFully(System.getProperty("user.name"), " ", " ");
+            }
             System.out.println(ANSI.FG_DARK_GREEN + "Welcome, " + name + ANSI.RESET);
 
             //ask what strength of coffee the user wants.
@@ -127,86 +148,106 @@ public class CoffeeKlatchAssignment {
                 System.out.println("-------------------------------------------------");
                 String format = "%1$-10s%2$-10s%3$-10s%4$-10s%5$-10s\n";
                 System.out.println("Cup Size: " + cup.getSize());
+                System.out.println(ANSI.RESET + "Coffee in cup: " + df.format(cup.getLitres() * 1000) + "mL" + ANSI.BOLD + "/" + ANSI.RESET + df.format(cup.getSize().getVolume() * 1000) + "mL");
                 //<editor-fold defaultstate="collapsed" desc="Header Labels for Coffee Machine Data">
-                String nameLabel = "Name",
-                        hasBeanLabel = "Beans",
+                String hasBeanLabel = "Beans",
                         isGroundLabel = "Ground",
                         waterLabel = "Water",
+                        brewedLabel = "Brewed",
                         strengthLabel = "Strength";
                 //print the header labels
-                System.out.format(format, center(nameLabel, Math.max(name.length(), 9)), center(hasBeanLabel, 9), center(isGroundLabel, 9), center(waterLabel, 9), center(strengthLabel, Math.max(coffeeMachine.getStrength().length(), 9)));
+                System.out.format(format, center(hasBeanLabel, 9), center(isGroundLabel, 9), center(waterLabel, 9), center(brewedLabel, 9), center(strengthLabel, Math.max(coffeeMachine.getStrength().length(), 9)));
                 //</editor-fold>
                 //<editor-fold defaultstate="collapsed" desc="Body Labels for Coffee Machine Data">
                 String formattedBeans = coffeeMachine.hasBeans()
                         ? Symbols.CHECK_MARK
                         : Symbols.X_MARK,
+                        formattedBrewed = coffeeMachine.isBrewed()
+                        ? Symbols.CHECK_MARK
+                        : Symbols.X_MARK,
                         formattedGround = coffeeMachine.hasBeans()
-                                ? coffeeMachine.isGround()
-                                        ? Symbols.CHECK_MARK
-                                        : Symbols.X_MARK
-                                : "-",
+                        ? coffeeMachine.isGround()
+                        ? Symbols.CHECK_MARK
+                        : Symbols.X_MARK
+                        : "-",
                         formattedWater = oneDecimal.format(coffeeMachine.getWater()) + "L";
                 //print the data labels
                 System.out.format(format,
-                        center(name, Math.max(name.length(), 9)),
                         (coffeeMachine.hasBeans() ? ANSI.FG_DARK_GREEN : ANSI.FG_RED) + center(formattedBeans, 9) + ANSI.RESET,
                         (coffeeMachine.hasBeans() ? coffeeMachine.isGround() ? ANSI.FG_DARK_GREEN : ANSI.FG_RED : "") + center(formattedGround, 9) + ANSI.RESET,
                         "  " + (coffeeMachine.hasWater() ? ANSI.FG_DARK_GREEN : ANSI.FG_RED) + center(formattedWater, 9) + ANSI.RESET,
+                        (coffeeMachine.isBrewed() ? ANSI.FG_DARK_GREEN : ANSI.FG_RED) + center(formattedBrewed, 9) + ANSI.RESET,
                         "  " + center(coffeeMachine.getStrength(), Math.max(coffeeMachine.getStrength().length(), 9)));
                 //</editor-fold>
 
                 //display the menu
                 System.out.println("-------------------------------------------------");
                 System.out.println("|                    Commands                   |");
-                System.out.println("|   B: Add Beans to Machine                     |");
+                System.out.println("|   S: Set the Strength of the Coffee           |");
+                System.out.println("|   C: Add Coffee Beans to Machine              |");
                 System.out.println("|   G: Grind Beans in Machine                   |");
                 System.out.println("|   W: Add Water to Machine                     |");
-                System.out.println("|   S: Set the Strength of the Coffee           |");
+                System.out.println("|   B: Brew the Coffee                          |");
                 System.out.println("|                                               |");
-                System.out.println("|   F: Fill a Cup from the Machine              |");
+                System.out.println("|   P: Pour a Cup from the Machine              |");
                 System.out.println("|   D: Drink the Cup                            |");
                 System.out.println("|                                               |");
                 System.out.println("|   A: Advanced Commands                        |");
                 System.out.println("|                                               |");
-                System.out.println("|   L: Log Out                                  |");
-                System.out.println("|   P: Power                                    |");
+                System.out.println("|   N: New User                                 |");
+                System.out.println("|   O: Turn off machine                         |");
                 System.out.println("-------------------------------------------------");
                 System.out.print(ANSI.FG_BLUE + "Enter your command: " + ANSI.RESET);
 
                 //get the user's command
                 String command = scan.nextLine();
 
-                //handle the command
+                //log the command and time
+                long secs = (System.currentTimeMillis()-startTime)/1000;
+                long minutes = 0;
+                while(secs > 60){
+                    minutes++;
+                    secs-=60;
+                }
+                log(timeFormat.format(minutes) + ":" + timeFormat.format(secs)+ " - "+command+"\n");
+
+
+                //handle the command via the appropriate method
                 if (command.equalsIgnoreCase("W")) {
                     coffeeMachine.addWater();
-                } else if (command.equalsIgnoreCase("B")) {
+                } else if (command.equalsIgnoreCase("C")) {
                     coffeeMachine.addBeans();
                 } else if (command.equalsIgnoreCase("G")) {
                     coffeeMachine.grindBeans();
                 } else if (command.equalsIgnoreCase("S")) {
                     System.out.print("Strength: ");
                     coffeeMachine.setStrength(scan.nextLine());
-                } else if (command.equalsIgnoreCase("F")) {
-                    coffeeMachine.brew(cup);
+                } else if (command.equalsIgnoreCase("B")) {
+                    coffeeMachine.brew();
+                } else if (command.equalsIgnoreCase("P")) {
+                    coffeeMachine.pour(cup);
                 } else if (command.equalsIgnoreCase("D")) {
                     cup.drink();
                 } else if (command.equalsIgnoreCase("A")) {
-                    //use reflection to let the user run advanced commands. This is split into a seperate method due to its complexity making it hard to read.
                     advancedCommands();
-                } else if (command.equalsIgnoreCase("L")) {
+                } else if (command.equalsIgnoreCase("N")) {
+
                     //stop the innermost loop to get a new user from the outer loop
                     hasUser = false;
+
                     //print a goodbye message
                     System.out.println(ANSI.FG_DARK_GREEN + "Please come again :)" + ANSI.RESET);
+
                     //wait a bit so the user can read the message
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException ex) {
 
                     }
+
                     //add spacing for the next user
                     System.out.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                } else if (command.equalsIgnoreCase("P")) {
+                } else if (command.equalsIgnoreCase("O")) {
                     hasUser = false;
                     exit = true;
                 } else {
@@ -215,19 +256,29 @@ public class CoffeeKlatchAssignment {
                 }
             }
         }
-        System.out.println("Shutting down...");
+        System.out.print("\nShutting down");
+        for (int i = 0; i < 3; i++) {
+            try {
+                Thread.sleep(333);
+                System.out.print(".");
+            } catch (InterruptedException ex) {
+                log(ex.getMessage());
+            }
+        }
         try {
             scan.close();
             fw.close();
-            //pause for dramatic effect
+            //pause for effect
             Thread.sleep(1000);
         } catch (InterruptedException | IOException ex) {
-
-        } finally {
-            System.out.println("Shut down.");
+            log(ex.getMessage());
         }
     }
 
+    /**
+     * This lets the user use more specific commands than provided in the menu
+     * using reflection.
+     */
     public static void advancedCommands() {
         /*I got bored and wanted to overcomplicate the program.
          This is way less efficient than just some if-else statements, but
@@ -241,6 +292,8 @@ public class CoffeeKlatchAssignment {
             System.out.println("     " + pair.getKey());
         }
         System.out.print(ANSI.FG_BLUE + "Enter an advanced command: " + ANSI.RESET);
+
+        //I know user input was supposed to only be called in the main() method but it was really hard to follow inside it so I made this a method. If it makes a difference, just imagine this was copy-pasted where this method was invoked.
         String advancedCmd = scan.nextLine().trim();
         boolean contains = false;
         Method selected = null;
@@ -279,7 +332,7 @@ public class CoffeeKlatchAssignment {
             try {
                 selected.invoke((selected.getDeclaringClass().equals(CoffeeCup.class) ? cup : coffeeMachine), params);
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                Logger.getLogger(CoffeeKlatchAssignment.class.getName()).log(Level.SEVERE, null, ex);
+                log(ex.getMessage());
             }
         } else {
             System.out.println(ANSI.FG_RED + "Unknown command." + ANSI.RESET);
